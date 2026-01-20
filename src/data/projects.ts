@@ -11,28 +11,26 @@ export interface Project {
 
 export const PROJECTS: Project[] = [
   {
-    title: "Tanuri",
+    title: "Seiyuu",
     description: `
-A complete LPG (cooking gas) ordering and delivery ecosystem.  
-Includes a consumer-facing mobile app for placing and managing gas orders, a company web app for staff to fulfill and track deliveries, and a secure Django REST API backend.  
-Covers the full lifecycle of order placement, payment, and fulfillment.`,
-    thumbnailPath: "/projects/tanuri.png",
-    gitHubUrl: "https://github.com/Karume-lab/tanuri",
-    projectUrl: "https://tanuri.vercel.app/",
+The "Shazam for Anime" - a voice recognition ecosystem.
+Features a consumer-facing mobile app built with React Native for recording and identifying Japanese voice actors (Seiyuu) in real-time.
+Powered by a high-performance Python backend leveraging deep learning and vector similarity search for precise audio fingerprinting.`,
+    thumbnailPath: "/projects/seiyuu.png",
+    gitHubUrl: "https://github.com/Karume-lab/seiyuu-base",
+    projectUrl: "https://seiyuu-app.vercel.app/",
     technologies: [
       "React Native",
       "Expo",
-      "BNA UI",
-      "Zod",
-      "Biome",
+      "NativeWind",
+      "TypeScript",
       "Next.js",
-      "Typescript",
       "Python",
-      "Mantine UI",
-      "CSS Modules",
-      "Django",
-      "DRF",
-      "Djoser",
+      "FastAPI",
+      "PyTorch",
+      "Qdrant",
+      "FFmpeg",
+      "Docker",
     ],
   },
   {

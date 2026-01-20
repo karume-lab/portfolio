@@ -42,7 +42,13 @@ const ProjectsGrid = () => {
               className="overflow-hidden flex flex-col p-0 hover-to-reveal"
             >
               <div className="relative w-full h-80 flex items-center justify-center overflow-hidden">
-                <Image src={thumbnailPath} alt={title} fill priority />
+                <Image
+                  src={thumbnailPath}
+                  alt={title}
+                  fill
+                  priority
+                  className="object-contain bg-primary"
+                />
               </div>
 
               <div className="flex flex-col flex-1 p-4">

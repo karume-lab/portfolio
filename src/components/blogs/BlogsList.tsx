@@ -12,10 +12,13 @@ const BlogsList = () => {
   const path = usePathname();
 
   return (
-    <section id="blogs" className="max-w-7xl w-full mx-auto px-6 sm:px-8 lg:px-12">
+    <section
+      id="blogs"
+      className="max-w-7xl w-full mx-auto px-6 sm:px-8 lg:px-12"
+    >
       <SectionHeader title="TALK IT LIKE I WALK IT." />
 
-      <ul>
+      <ul className="flex flex-col gap-4">
         {blogs
           .slice(0, path.includes("blogs") ? blogs.length : 4)
           .map((blog) => (

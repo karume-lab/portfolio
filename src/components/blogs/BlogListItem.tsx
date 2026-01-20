@@ -30,12 +30,12 @@ export const BlogListItem: React.FC<BlogListItemProps> = ({ blog }) => {
           </span>
         </div>
 
-        <div className="flex justify-between items-center mt-2">
+        <div className="flex justify-between items-center">
           <TypographyH2 className="text-xl font-semibold">{title}</TypographyH2>
           <ArrowRight />
         </div>
 
-        <TypographyP className="text-muted-foreground mt-1">
+        <TypographyP className="text-muted-foreground">
           {description}
         </TypographyP>
 

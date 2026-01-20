@@ -1,5 +1,6 @@
 import { Calendar, Clock } from "lucide-react";
 import type { Metadata } from "next";
+import Image from "next/image";
 import type React from "react";
 import { BlogListItem } from "@/components";
 import { Badge } from "@/components/ui/badge";
@@ -20,10 +21,35 @@ export const generateMetadata = async ({
 }: BlogDetailParams): Promise<Metadata> => {
   const slug = (await params).slug;
   const { compiledMDX } = await getBlog(slug);
+  const { title, description, date, image, tags } = compiledMDX.frontmatter;
 
   return {
     title: {
-      absolute: `Blogs | ${compiledMDX.frontmatter.title}`,
+      absolute: `Blogs | ${title}`,
+    },
+    description: description,
+    openGraph: {
+      title: title,
+      description: description,
+      type: "article",
+      publishedTime: date,
+      tags,
+      images: image
+        ? [
+            {
+              url: image,
+              width: 1200,
+              height: 630,
+              alt: title,
+            },
+          ]
+        : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: title,
+      description: description,
+      images: image ? [image] : [],
     },
   };
 };
@@ -39,7 +65,7 @@ const BlogDetailPage: React.FC<BlogDetailParams> = async ({ params }) => {
   return (
     <div className="max-w-7xl w-full mx-auto px-6 sm:px-8 lg:px-12 my-24">
       <header>
-        <div className="flex items-center gap-6 text-sm text-muted-foreground">
+        <div className="flex items-center gap-6 text-sm text-muted-foreground mb-6">
           <span className="flex items-center gap-1">
             <Calendar className="size-4" />
             {timeSinceOrDate(blog.date)}
@@ -51,13 +77,15 @@ const BlogDetailPage: React.FC<BlogDetailParams> = async ({ params }) => {
           </span>
         </div>
 
-        <TypographyH1 className="text-4xl font-bold">{blog.title}</TypographyH1>
+        <TypographyH1 className="text-4xl font-bold mb-4">
+          {blog.title}
+        </TypographyH1>
 
-        <TypographyP className="text-muted-foreground">
+        <TypographyP className="text-muted-foreground mb-6">
           {blog.description}
         </TypographyP>
 
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex gap-2 flex-wrap mb-6">
           {blog.tags.map((tag) => (
             <Badge key={tag} variant="secondary" className="uppercase">
               {tag}
@@ -65,20 +93,43 @@ const BlogDetailPage: React.FC<BlogDetailParams> = async ({ params }) => {
           ))}
         </div>
 
-        <TypographyP className="italic text-muted-foreground">
-          <strong>TL;DR:</strong> {blog["TL;DR"]}
-        </TypographyP>
+        <div className="bg-muted/50 border-l-4 border-primary p-4 rounded-r-lg">
+          <TypographyP className="italic text-muted-foreground m-0">
+            <strong className="text-foreground not-italic">TL;DR:</strong>{" "}
+            {blog["TL;DR"]}
+          </TypographyP>
+        </div>
       </header>
 
-      <article>{compiledMDX.content}</article>
+      {blog.image && (
+        <figure className="my-10">
+          <div className="relative w-full aspect-video rounded-xl overflow-hidden shadow-sm">
+            <Image
+              src={blog.image}
+              alt={blog.title}
+              fill
+              className="object-cover w-full h-full"
+              priority
+            />
+          </div>
+
+          {blog.caption && (
+            <figcaption className="text-center text-sm text-muted-foreground mt-2 italic">
+              {blog.caption}
+            </figcaption>
+          )}
+        </figure>
+      )}
+
+      <article className="mt-10">{compiledMDX.content}</article>
 
       {relatedBlogs.length > 0 && (
-        <section className="mt-24">
-          <TypographyH2 className="text-2xl font-semibold mb-4">
+        <section className="mt-24 border-t pt-12">
+          <TypographyH2 className="text-2xl font-semibold mb-8">
             Related Blogs
           </TypographyH2>
 
-          <div className="space-y-6">
+          <div className="grid gap-6 sm:grid-cols-2">
             {relatedBlogs.map((blog) => (
               <BlogListItem blog={blog} key={blog.title} />
             ))}
