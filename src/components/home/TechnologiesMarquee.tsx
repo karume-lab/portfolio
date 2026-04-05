@@ -20,7 +20,7 @@ const TechnologiesMarquee = () => {
   const plugin = useRef(
     Autoscroll({
       speed: 0.5,
-    })
+    }),
   );
 
   return (

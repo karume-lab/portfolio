@@ -1,19 +1,9 @@
 import "@/styles";
 
 import { Geist, Geist_Mono } from "next/font/google";
-import AnimatedCursor from "react-animated-cursor";
-import {
-  BackToTopButton,
-  BlogsProvider,
-  ChangeMetadataTitleOnBlur,
-  Footer,
-  NavigationPill,
-  ScrollProgress,
-} from "@/components";
-import OpenInLargeScreenPopover from "@/components/core/OpenInLargeScreenPopover";
+import ChangeMetadataTitleOnBlur from "@/components/core/ChangeMetadataTitleOnBlur";
 import SEOConfig, { metadataConfig } from "@/components/core/SEOConfig";
 import { Toaster } from "@/components/ui/sonner";
-import { getBlogs } from "@/lib/blogs";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -40,29 +30,9 @@ const RootLayout: React.FC<RootLayoutProps> = async ({ children }) => {
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
         id="root"
       >
-        <BlogsProvider blogs={await getBlogs()}>
-          <NavigationPill />
-          <ChangeMetadataTitleOnBlur />
-
-          <div className="hidden lg:block">
-            <AnimatedCursor
-              color="0, 0, 0"
-              innerSize={24}
-              outerSize={48}
-              outerScale={1.5}
-              trailingSpeed={8}
-            />
-          </div>
-
-          <ScrollProgress />
-          <BackToTopButton />
-          <OpenInLargeScreenPopover />
-          <Toaster richColors />
-
-          <main className="flex-1">{children}</main>
-
-          <Footer />
-        </BlogsProvider>
+        <ChangeMetadataTitleOnBlur />
+        <Toaster richColors />
+        {children}
       </body>
     </html>
   );

@@ -8,13 +8,13 @@ const CHARACTERS =
 const randomizeText = (length: number) =>
   Array.from(
     { length },
-    () => CHARACTERS[Math.floor(Math.random() * CHARACTERS.length)]
+    () => CHARACTERS[Math.floor(Math.random() * CHARACTERS.length)],
   ).join("");
 
 export const useScrambleText = <T extends HTMLElement>(
   text: string,
   speed = 120,
-  threshold = 0.6
+  threshold = 0.6,
 ) => {
   const [displayText, setDisplayText] = useState(text);
   const elementRef = useRef<T>(null);
@@ -37,9 +37,9 @@ export const useScrambleText = <T extends HTMLElement>(
             .map((char, i) =>
               i < frame
                 ? char
-                : CHARACTERS[Math.floor(Math.random() * CHARACTERS.length)]
+                : CHARACTERS[Math.floor(Math.random() * CHARACTERS.length)],
             )
-            .join("")
+            .join(""),
         );
 
         frame++;
@@ -59,7 +59,7 @@ export const useScrambleText = <T extends HTMLElement>(
           }
         });
       },
-      { threshold }
+      { threshold },
     );
 
     observer.observe(elementRef.current);

@@ -1,4 +1,7 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { ImageResponse } from "next/og";
+import BusinessCardOG from "@/components/core/BusinessCardOG";
 
 export const size = {
   width: 1200,
@@ -7,24 +10,17 @@ export const size = {
 
 export const contentType = "image/png";
 
-const openGraphImage = async (): Promise<ImageResponse> => {
-  const me = `${process.env.NEXT_PUBLIC_APP_URL}/core/me.png`;
+const twitterImage = async (): Promise<ImageResponse> => {
+  const imagePath = join(process.cwd(), "public/core/me.png");
+  const imageBuffer = readFileSync(imagePath);
+  const imageData = `data:image/png;base64,${imageBuffer.toString("base64")}`;
 
   return new ImageResponse(
-    <div tw="flex flex-col items-center justify-center w-full h-full bg-black text-white">
-      {/* biome-ignore lint/performance/noImgElement: <Image /> cannot be used here */}
-      <img
-        src={me}
-        alt="Daniel Karume"
-        style={{
-          filter: "grayscale(75%)",
-        }}
-      />
-    </div>,
+    <BusinessCardOG width={1200} height={630} imageUrl={imageData} />,
     {
       ...size,
     },
   );
 };
 
-export default openGraphImage;
+export default twitterImage;
