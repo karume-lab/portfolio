@@ -29,14 +29,6 @@ export interface TimelineElement {
   error?: string;
 }
 
-// export interface TimelineProps {
-//   items: TimelineElement[];
-//   size?: TimelineSize;
-//   animate?: boolean;
-//   iconColor?: TimelineColor;
-//   connectorColor?: TimelineColor;
-//   className?: string;
-// }
 
 const timelineVariants = cva("flex flex-col relative", {
   variants: {
@@ -152,12 +144,8 @@ const TimelineItem = React.forwardRef<HTMLLIElement, TimelineItemProps>(
       iconsize,
       loading,
       error,
-      // Omit unused Framer Motion props
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       initial,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       animate,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       transition,
       ...props
     },
@@ -165,10 +153,8 @@ const TimelineItem = React.forwardRef<HTMLLIElement, TimelineItemProps>(
   ) => {
     const commonClassName = cn("relative w-full mb-8 last:mb-0", className);
 
-    // Loading State
     if (loading) {
       return (
-        // biome-ignore lint/a11y/useSemanticElements: <explanation>
         <motion.li
           ref={ref}
           className={commonClassName}
@@ -202,7 +188,6 @@ const TimelineItem = React.forwardRef<HTMLLIElement, TimelineItemProps>(
       );
     }
 
-    // Error State
     if (error) {
       return (
         <motion.li
@@ -250,12 +235,10 @@ const TimelineItem = React.forwardRef<HTMLLIElement, TimelineItemProps>(
         className="grid grid-cols-[1fr_auto_1fr] gap-4 items-start"
         {...(status === "in-progress" ? { "aria-current": "step" } : {})}
       >
-        {/* Date */}
         <div className="flex flex-col justify-start pt-1">
           <TimelineTime className="text-right pr-4">{date}</TimelineTime>
         </div>
 
-        {/* Timeline dot and connector */}
         <div className="flex flex-col items-center">
           <div className="relative z-10">
             <TimelineIcon
@@ -268,7 +251,6 @@ const TimelineItem = React.forwardRef<HTMLLIElement, TimelineItemProps>(
           {showConnector && <div className="h-16 w-0.5 bg-border mt-2" />}
         </div>
 
-        {/* Content */}
         <TimelineContent>
           <TimelineHeader>
             <TimelineTitle>{title}</TimelineTitle>
@@ -278,31 +260,18 @@ const TimelineItem = React.forwardRef<HTMLLIElement, TimelineItemProps>(
       </div>
     );
 
-    // Filter out Framer Motion specific props
     const {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       style,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       onDrag,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       onDragStart,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       onDragEnd,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       onAnimationStart,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       onAnimationComplete,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       transformTemplate,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       whileHover,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       whileTap,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       whileDrag,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       whileFocus,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       whileInView,
       ...filteredProps
     } = props;
@@ -541,7 +510,6 @@ export const TimelineLayout = ({
     <Timeline size={size} className={className}>
       {[...items].reverse().map((item, index) => (
         <motion.div
-          // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
           key={index}
           initial={animate ? { opacity: 0, y: 20 } : false}
           animate={animate ? { opacity: 1, y: 0 } : false}

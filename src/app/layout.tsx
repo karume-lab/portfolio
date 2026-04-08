@@ -19,6 +19,8 @@ export const metadata = metadataConfig;
 
 interface RootLayoutProps extends Readonly<{ children: React.ReactNode }> {}
 
+import { NuqsAdapter } from "nuqs/adapters/next/app";
+
 const RootLayout: React.FC<RootLayoutProps> = async ({ children }) => {
   return (
     <html lang="en">
@@ -30,9 +32,11 @@ const RootLayout: React.FC<RootLayoutProps> = async ({ children }) => {
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
         id="root"
       >
-        <ChangeMetadataTitleOnBlur />
-        <Toaster richColors />
-        {children}
+        <NuqsAdapter>
+          <ChangeMetadataTitleOnBlur />
+          <Toaster richColors />
+          {children}
+        </NuqsAdapter>
       </body>
     </html>
   );

@@ -23,7 +23,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Spinner } from "@/components/ui/spinner"; // ShadCN Spinner
+import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
 
 const contactMeSchema = z.object({
@@ -32,16 +32,30 @@ const contactMeSchema = z.object({
   message: z.string().min(1, "Please write a message"),
 });
 
-interface ContactMeFormValues extends z.infer<typeof contactMeSchema> {}
+type ContactMeFormValues = z.infer<typeof contactMeSchema>;
 
-const ContactMeFormDialog = () => {
+interface ContactMeFormDialogProps {
+  defaultMessage?: string;
+  trigger?: React.ReactNode;
+}
+
+const ContactMeFormDialog = ({
+  defaultMessage = "",
+  trigger,
+}: ContactMeFormDialogProps) => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const form = useForm<ContactMeFormValues>({
     resolver: zodResolver(contactMeSchema),
-    defaultValues: { name: "", email: "", message: "" },
+    defaultValues: { name: "", email: "", message: defaultMessage },
   });
+
+  useEffect(() => {
+    if (defaultMessage && !form.getValues("message")) {
+      form.setValue("message", defaultMessage);
+    }
+  }, [defaultMessage, form]);
 
   useEffect(() => {
     const errors = form.formState.errors;
@@ -78,9 +92,11 @@ const ContactMeFormDialog = () => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="default" size="lg">
-          Send Message
-        </Button>
+        {trigger || (
+          <Button variant="default" size="lg">
+            Send Message
+          </Button>
+        )}
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-md">

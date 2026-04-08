@@ -7,7 +7,7 @@ export interface Technology {
 }
 
 export const TECHNOLOGIES: Technology[] = [
-  // 🌐 Web Development (Core Frontend)
+  // Web Development (Core Frontend)
   {
     href: "https://developer.mozilla.org/docs/Web/HTML",
     logoPath: "/technologies/html.png",
@@ -74,7 +74,7 @@ export const TECHNOLOGIES: Technology[] = [
     label: "Zod",
   },
 
-  // 📱 Mobile Development
+  // Mobile Development
   {
     href: "https://expo.dev/",
     logoPath: "/technologies/expo.png",
@@ -86,7 +86,7 @@ export const TECHNOLOGIES: Technology[] = [
     label: "React Native Reusables",
   },
 
-  // ⚙️ Backend & Frameworks
+  // Backend & Frameworks
   {
     href: "https://nodejs.org/",
     logoPath: "/technologies/node.png",
@@ -118,7 +118,7 @@ export const TECHNOLOGIES: Technology[] = [
     label: "ORPC",
   },
 
-  // 🗄 Databases & ORM
+  // Databases & ORM
   {
     href: "https://www.postgresql.org/",
     logoPath: "/technologies/postgres.png",
@@ -140,14 +140,14 @@ export const TECHNOLOGIES: Technology[] = [
     label: "Prisma",
   },
 
-  // 🔐 Authentication
+  // Authentication
   {
     href: "https://www.better-auth.com/",
     logoPath: "/technologies/better-auth.png",
     label: "Better Auth",
   },
 
-  // 🛠 Tooling & Package Managers
+  // Tooling & Package Managers
   {
     href: "https://www.npmjs.com/",
     logoPath: "/technologies/npm.png",
@@ -189,7 +189,7 @@ export const TECHNOLOGIES: Technology[] = [
     label: "Postman",
   },
 
-  // 🧹 Code Quality / Formatting
+  // Code Quality / Formatting
   {
     href: "https://biomejs.dev/",
     logoPath: "/technologies/biome.png",
@@ -206,7 +206,7 @@ export const TECHNOLOGIES: Technology[] = [
     label: "Prettier",
   },
 
-  // 🔗 Blockchain & Web3
+  // Blockchain & Web3
   {
     href: "https://soliditylang.org/",
     logoPath: "/technologies/solidity.png",
@@ -218,7 +218,7 @@ export const TECHNOLOGIES: Technology[] = [
     label: "Hardhat.js",
   },
 
-  // 🖥 OS, Scripting & Programming Languages
+  // OS, Scripting & Programming Languages
   {
     href: "https://archlinux.org/",
     logoPath: "/technologies/arch-linux.png",
@@ -240,7 +240,7 @@ export const TECHNOLOGIES: Technology[] = [
     label: "Python",
   },
 
-  // 📋 Project Management
+  // Project Management
   {
     href: "https://www.atlassian.com/software/jira",
     logoPath: "/technologies/jira.png",

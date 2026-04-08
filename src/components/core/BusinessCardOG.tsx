@@ -22,7 +22,6 @@ const BusinessCardOG: React.FC<BusinessCardOGProps> = ({
         overflow: "hidden",
       }}
     >
-      {/* LEFT SIDE: Identity */}
       <div
         style={{
           display: "flex",
@@ -34,7 +33,6 @@ const BusinessCardOG: React.FC<BusinessCardOGProps> = ({
           borderRight: "1px solid #333333",
         }}
       >
-        {/* Profile Photo */}
         <div
           style={{
             display: "flex",
@@ -62,7 +60,6 @@ const BusinessCardOG: React.FC<BusinessCardOGProps> = ({
           />
         </div>
 
-        {/* Header Block */}
         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
           <h1
             style={{
@@ -90,7 +87,6 @@ const BusinessCardOG: React.FC<BusinessCardOGProps> = ({
           </p>
         </div>
 
-        {/* Tagline */}
         <div style={{ display: "flex", marginTop: "40px" }}>
           <p
             style={{
@@ -106,7 +102,6 @@ const BusinessCardOG: React.FC<BusinessCardOGProps> = ({
         </div>
       </div>
 
-      {/* RIGHT SIDE: Information */}
       <div
         style={{
           display: "flex",
@@ -118,7 +113,6 @@ const BusinessCardOG: React.FC<BusinessCardOGProps> = ({
           gap: "48px",
         }}
       >
-        {/* Services Section */}
         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
           <h3
             style={{
@@ -147,7 +141,6 @@ const BusinessCardOG: React.FC<BusinessCardOGProps> = ({
           </div>
         </div>
 
-        {/* Contact Section */}
         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
           <h3
             style={{

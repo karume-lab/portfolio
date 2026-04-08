@@ -46,11 +46,8 @@ const BusinessCard: React.FC<BusinessCardProps> = ({ className }) => {
       aria-label="Digital Business Card. Click to flip."
       className={cn(
         "relative cursor-pointer p-0 text-left block bg-transparent border-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-all duration-500",
-        // Enforce the aspect ratio
         "aspect-1200/630",
-        // Mobile Portrait: Set width based on 85% of viewport height so it fits perfectly when rotated
         "max-sm:portrait:w-[85dvh] max-sm:portrait:-rotate-90",
-        // Desktop / Landscape: Standard responsive scaling
         "w-full max-w-[800px] sm:rotate-0",
         className,
       )}
@@ -66,7 +63,6 @@ const BusinessCard: React.FC<BusinessCardProps> = ({ className }) => {
           damping: 20,
         }}
       >
-        {/* Front Side */}
         <div
           className="absolute inset-0 w-full h-full bg-card rounded-2xl overflow-hidden shadow-2xl border border-border"
           style={{
@@ -114,7 +110,6 @@ const BusinessCard: React.FC<BusinessCardProps> = ({ className }) => {
           </div>
         </div>
 
-        {/* Back Side */}
         <div
           className="absolute inset-0 w-full h-full bg-card rounded-2xl overflow-hidden shadow-2xl border border-border"
           style={{
@@ -199,7 +194,6 @@ const BusinessCard: React.FC<BusinessCardProps> = ({ className }) => {
         </div>
       </motion.div>
 
-      {/* Interaction Hint */}
       <div className="absolute left-1/2 -translate-x-1/2 -bottom-8 sm:-bottom-10 text-muted-foreground/50 text-[10px] sm:text-xs font-medium tracking-widest uppercase whitespace-nowrap animate-pulse">
         Click to flip card
       </div>
