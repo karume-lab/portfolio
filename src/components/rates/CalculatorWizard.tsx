@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowLeft,
   ArrowRight,
+  Check,
   Clock,
   Globe,
   Layout,
@@ -56,7 +57,9 @@ const CalculatorWizard: React.FC<CalculatorWizardProps> = ({
   const [step, setStep] = useQueryState("step", stepParser);
 
   const [selections, setSelections] = useQueryStates({
-    typeId: parseAsString.withDefault(CALCULATOR_LOGIC.projectTypes[0].id),
+    typeIds: parseAsArrayOf(parseAsString).withDefault([
+      CALCULATOR_LOGIC.projectTypes[0].id,
+    ]),
     scaleId: parseAsString.withDefault(CALCULATOR_LOGIC.pageScales[0].id),
     featureIds: parseAsArrayOf(parseAsString).withDefault([]),
     urgencyId: parseAsString.withDefault(CALCULATOR_LOGIC.urgency[0].id),
@@ -65,10 +68,15 @@ const CalculatorWizard: React.FC<CalculatorWizardProps> = ({
   const currentCurrency = initialCurrency || "USD";
   const symbol = CURRENCY_SYMBOLS[currentCurrency];
 
-  const total = useMemo(() => {
-    const type = CALCULATOR_LOGIC.projectTypes.find(
-      (t) => t.id === selections.typeId,
+    const selectedTypes = useMemo(
+      () =>
+        CALCULATOR_LOGIC.projectTypes.filter((t) =>
+          selections.typeIds.includes(t.id),
+        ),
+      [selections.typeIds],
     );
+
+  const total = useMemo(() => {
     const scale = CALCULATOR_LOGIC.pageScales.find(
       (s) => s.id === selections.scaleId,
     );
@@ -81,12 +89,17 @@ const CalculatorWizard: React.FC<CalculatorWizardProps> = ({
     const tierMult = CALCULATOR_LOGIC.tierMultipliers[currentTier];
 
     const baseUSD = CALCULATOR_LOGIC.baseUSD;
-    let subtotalUSD =
-      baseUSD *
-      (type?.multiplier || 1) *
-      (scale?.multiplier || 1) *
-      (urgency?.multiplier || 1) *
-      tierMult;
+    let subtotalUSD = 0;
+
+    // Sum up the base price for each selected type
+    for (const type of selectedTypes) {
+      subtotalUSD +=
+        baseUSD *
+        type.multiplier *
+        (scale?.multiplier || 1) *
+        (urgency?.multiplier || 1) *
+        tierMult;
+    }
 
     selections.featureIds.forEach((fid) => {
       const feature =
@@ -99,7 +112,7 @@ const CalculatorWizard: React.FC<CalculatorWizardProps> = ({
     });
 
     return Math.round(subtotalUSD * EXCHANGE_RATES[currentCurrency]);
-  }, [selections, currentCurrency]);
+  }, [selections, currentCurrency, selectedTypes]);
 
   const steps: CalculatorStep[] = [
     "type",
@@ -120,6 +133,16 @@ const CalculatorWizard: React.FC<CalculatorWizardProps> = ({
   const prevStep = async () => {
     const prevIdx = currentStepIndex - 1;
     if (prevIdx >= 0) await setStep(steps[prevIdx]);
+  };
+
+  const toggleType = async (id: string) => {
+    await setSelections((prev) => {
+      const newTypeIds = prev.typeIds.includes(id)
+        ? prev.typeIds.filter((t) => t !== id)
+        : [...prev.typeIds, id];
+      // Ensure at least one type is always selected
+      return { typeIds: newTypeIds.length > 0 ? newTypeIds : prev.typeIds };
+    });
   };
 
   const toggleFeature = async (id: string) => {
@@ -172,17 +195,26 @@ const CalculatorWizard: React.FC<CalculatorWizardProps> = ({
                     <button
                       key={type.id}
                       type="button"
-                      onClick={() => {
-                        setSelections((p) => ({ ...p, typeId: type.id }));
-                        nextStep();
-                      }}
+                      onClick={() => toggleType(type.id)}
                       className={cn(
-                        "flex flex-col items-center p-6 rounded-2xl border-2 transition-all group",
-                        selections.typeId === type.id
+                        "flex flex-col items-center p-6 rounded-2xl border-2 transition-all group relative",
+                        selections.typeIds.includes(type.id)
                           ? "border-primary bg-primary/5 shadow-[0_0_20px_-5px_rgba(255,255,255,0.1)]"
                           : "border-border/30 bg-transparent hover:border-primary/50",
                       )}
                     >
+                      <div
+                        className={cn(
+                          "absolute top-4 right-4 size-5 rounded-full border-2 flex items-center justify-center transition-colors",
+                          selections.typeIds.includes(type.id)
+                            ? "bg-primary border-primary"
+                            : "border-border/50",
+                        )}
+                      >
+                        {selections.typeIds.includes(type.id) && (
+                          <Check className="size-3 text-primary-foreground" />
+                        )}
+                      </div>
                       {type.id === "website" && (
                         <Globe className="size-10 mb-4 group-hover:scale-110 transition-transform" />
                       )}
@@ -332,7 +364,7 @@ const CalculatorWizard: React.FC<CalculatorWizardProps> = ({
 
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
                     <ContactMeFormDialog
-                      defaultMessage={`Hi Daniel,\n\nI just used your project estimator for my ${CALCULATOR_LOGIC.projectTypes.find((t) => t.id === selections.typeId)?.label ?? "project"}.\n\nEstimate Details:\n- Type: ${CALCULATOR_LOGIC.projectTypes.find((t) => t.id === selections.typeId)?.label}\n- Scale: ${CALCULATOR_LOGIC.pageScales.find((s) => s.id === selections.scaleId)?.label}\n- Urgency: ${CALCULATOR_LOGIC.urgency.find((u) => u.id === selections.urgencyId)?.label}\n- Features: ${selections.featureIds.length > 0 ? selections.featureIds.map((fid) => CALCULATOR_LOGIC.features[fid as keyof typeof CALCULATOR_LOGIC.features]?.label).join(", ") : "None specified"}\n\nEstimated Total: ${symbol}${total.toLocaleString()}\n\nLooking forward to speaking with you!`}
+                      defaultMessage={`Hi Daniel,\n\nI just used your project estimator for the following project categories: ${selectedTypes.map((t) => t.label).join(", ")}.\n\nEstimate Details:\n- Types: ${selectedTypes.map((t) => t.label).join(", ")}\n- Scale: ${CALCULATOR_LOGIC.pageScales.find((s) => s.id === selections.scaleId)?.label}\n- Urgency: ${CALCULATOR_LOGIC.urgency.find((u) => u.id === selections.urgencyId)?.label}\n- Features: ${selections.featureIds.length > 0 ? selections.featureIds.map((fid) => CALCULATOR_LOGIC.features[fid as keyof typeof CALCULATOR_LOGIC.features]?.label).join(", ") : "None specified"}\n\nEstimated Total: ${symbol}${total.toLocaleString()}\n\nLooking forward to speaking with you!`}
                       trigger={
                         <Button
                           size="lg"
@@ -387,7 +419,7 @@ const CalculatorWizard: React.FC<CalculatorWizardProps> = ({
             onClick={async () => {
               await setStep("type");
               await setSelections({
-                typeId: "website",
+                typeIds: ["website"],
                 scaleId: "small",
                 featureIds: [],
                 urgencyId: "standard",

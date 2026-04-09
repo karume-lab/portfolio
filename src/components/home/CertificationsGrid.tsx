@@ -31,7 +31,7 @@ const CertificationsGrid = () => {
 
   return (
     <section
-      className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12"
+      className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 overflow-hidden"
       id="certifications"
     >
       <SectionHeader title="WHERE'S THE PROOF?" className="text-center" />
@@ -40,34 +40,34 @@ const CertificationsGrid = () => {
         {CERTIFICATIONS.map((cert) => (
           <Card
             key={cert.title}
-            className="h-full flex flex-col shadow-md hover:shadow-lg transition-shadow hover-to-reveal"
+            className="h-full flex flex-col items-stretch shadow-md hover:shadow-lg transition-shadow hover-to-reveal overflow-hidden p-0 gap-0"
           >
-            <div className="relative aspect-video mx-4 mt-4 rounded-md overflow-hidden">
+            <div className="relative w-full aspect-video overflow-hidden bg-muted/20 shrink-0">
               <Image
                 src={cert.imagePath}
                 alt={cert.title}
                 fill
                 priority
-                className="object-fit"
+                className="object-contain p-4"
               />
             </div>
 
-            <CardHeader>
-              <CardTitle className="font-semibold text-center text-base sm:text-lg">
+            <CardHeader className="p-6 pb-2 space-y-1">
+              <CardTitle className="font-bold text-center text-lg sm:text-xl wrap-break-word">
                 {cert.title}
               </CardTitle>
             </CardHeader>
 
-            <CardContent className="space-y-2 flex-1">
-              <TypographyP className="text-sm text-muted-foreground text-center">
+            <CardContent className="space-y-4 flex-1 p-6 pt-0 min-w-0 w-full">
+              <TypographyP className="text-sm text-center text-muted-foreground wrap-break-word w-full block">
                 {cert.description}
               </TypographyP>
-              <div className="flex flex-wrap gap-2 justify-center">
+              <div className="flex flex-wrap gap-2 justify-center w-full">
                 {cert.skills.map((skill) => (
                   <Badge
                     key={skill}
                     variant="secondary"
-                    className="text-xs sm:text-sm"
+                    className="text-xs font-medium px-2 py-0.5 rounded-full whitespace-normal text-center"
                   >
                     {skill}
                   </Badge>
@@ -75,12 +75,12 @@ const CertificationsGrid = () => {
               </div>
             </CardContent>
 
-            <div className="p-4 pt-0 mt-auto">
-              <div className="flex justify-center">
+            <div className="p-6 pt-0 mt-auto w-full">
+              <div className="flex justify-center w-full">
                 <Button
                   size="sm"
                   onClick={() => handleViewCert(cert)}
-                  className="text-xs sm:text-sm"
+                  className="text-xs sm:text-sm w-full sm:w-auto"
                 >
                   View Certificate
                 </Button>
