@@ -20,7 +20,7 @@ import {
   useQueryState,
   useQueryStates,
 } from "nuqs";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import ContactMeFormDialog from "@/components/home/ContactMeDialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -33,6 +33,7 @@ import {
   EXCHANGE_RATES,
   type PricingTier,
 } from "@/data/rates";
+import { generateQuotePDF } from "@/lib/pdf";
 import { cn } from "@/lib/utils";
 
 interface CalculatorWizardProps {
@@ -68,13 +69,13 @@ const CalculatorWizard: React.FC<CalculatorWizardProps> = ({
   const currentCurrency = initialCurrency || "USD";
   const symbol = CURRENCY_SYMBOLS[currentCurrency];
 
-    const selectedTypes = useMemo(
-      () =>
-        CALCULATOR_LOGIC.projectTypes.filter((t) =>
-          selections.typeIds.includes(t.id),
-        ),
-      [selections.typeIds],
-    );
+  const selectedTypes = useMemo(
+    () =>
+      CALCULATOR_LOGIC.projectTypes.filter((t) =>
+        selections.typeIds.includes(t.id),
+      ),
+    [selections.typeIds],
+  );
 
   const total = useMemo(() => {
     const scale = CALCULATOR_LOGIC.pageScales.find(
@@ -124,6 +125,86 @@ const CalculatorWizard: React.FC<CalculatorWizardProps> = ({
   const currentStep = step ?? "type";
   const currentStepIndex = steps.indexOf(currentStep);
   const progress = (currentStepIndex / (steps.length - 1)) * 100;
+
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+
+  const handleDownloadPDF = async () => {
+    try {
+      setIsGeneratingPDF(true);
+      const scale = CALCULATOR_LOGIC.pageScales.find(
+        (s) => s.id === selections.scaleId,
+      );
+      const urgency = CALCULATOR_LOGIC.urgency.find(
+        (u) => u.id === selections.urgencyId,
+      );
+
+      const tierKey: PricingTier =
+        currentCurrency === "KES" ? "tier3" : "tier1";
+      const tierMult = CALCULATOR_LOGIC.tierMultipliers[tierKey];
+      const conv = EXCHANGE_RATES[currentCurrency];
+
+      const breakdown: { label: string; price: string }[] = [];
+
+      // Calculate each type's contribution
+      for (const type of selectedTypes) {
+        const typePrice = Math.round(
+          CALCULATOR_LOGIC.baseUSD *
+            type.multiplier *
+            (scale?.multiplier || 1) *
+            (urgency?.multiplier || 1) *
+            tierMult *
+            conv,
+        );
+        breakdown.push({
+          label: `${type.label} Development (Base + Scale/Urgency)`,
+          price: `${symbol}${typePrice.toLocaleString()}`,
+        });
+      }
+
+      // Add features
+      for (const fid of selections.featureIds) {
+        const feature =
+          CALCULATOR_LOGIC.features[
+            fid as keyof typeof CALCULATOR_LOGIC.features
+          ];
+        if (feature) {
+          const fPrice = Math.round(feature.baseUSD * tierMult * conv);
+          breakdown.push({
+            label: `Feature: ${feature.label}`,
+            price: `${symbol}${fPrice.toLocaleString()}`,
+          });
+        }
+      }
+
+      await generateQuotePDF({
+        title: "Professional Quotation",
+        categories: selectedTypes.map((t) => t.label),
+        scale: scale?.label || "N/A",
+        urgency: urgency?.label || "N/A",
+        features: selections.featureIds.map(
+          (fid) =>
+            CALCULATOR_LOGIC.features[
+              fid as keyof typeof CALCULATOR_LOGIC.features
+            ]?.label || fid,
+        ),
+        breakdown,
+        total: {
+          symbol,
+          value: total.toLocaleString(),
+        },
+        disclaimer:
+          "This is a formal guideline estimate based on 2026 technical benchmarks. Final invoice may vary +/- 10% after detailed requirements phase.",
+        contact: {
+          email: "daniel.work@gmail.com",
+          website: "karume.vercel.app",
+        },
+      });
+    } catch (error) {
+      console.error("PDF generation failed:", error);
+    } finally {
+      setIsGeneratingPDF(false);
+    }
+  };
 
   const nextStep = async () => {
     const nextIdx = currentStepIndex + 1;
@@ -377,10 +458,18 @@ const CalculatorWizard: React.FC<CalculatorWizardProps> = ({
                     <Button
                       variant="outline"
                       size="lg"
-                      className="h-14 px-10 text-lg font-bold border-border bg-secondary hover:bg-secondary/80 rounded-2xl"
-                      onClick={() => window.print()}
+                      className="h-14 px-10 text-lg font-bold border-border bg-secondary hover:bg-secondary/80 rounded-2xl gap-2"
+                      onClick={handleDownloadPDF}
+                      disabled={isGeneratingPDF}
                     >
-                      Download Quote (PDF)
+                      {isGeneratingPDF ? (
+                        <>
+                          <RefreshCw className="size-5 animate-spin" />
+                          Generating...
+                        </>
+                      ) : (
+                        "Download Quote (PDF)"
+                      )}
                     </Button>
                   </div>
                 </div>
@@ -401,12 +490,13 @@ const CalculatorWizard: React.FC<CalculatorWizardProps> = ({
           </Button>
         )}
         <div className="flex-1" />
-        {step !== "type" && step !== "result" && (
+        {step !== "result" && (
           <Button
             className="bg-primary/10 text-primary hover:bg-primary/20"
             onClick={nextStep}
           >
-            {selections.featureIds.length > 0 && step === "features"
+            {step === "type" ||
+            (selections.featureIds.length > 0 && step === "features")
               ? "Next Step"
               : `Skip ${step === "features" ? "Features" : step === "scale" ? "Scale" : "Urgency"}`}{" "}
             <ArrowRight className="ml-2 size-4" />

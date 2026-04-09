@@ -77,7 +77,7 @@ export const PRICING_PACKAGES: PricingPackage[] = [
 
       tier2: { USD: 1200, EUR: 1100, KES: 156000 },
 
-      tier3: { USD: 380, EUR: 350, KES: 50000 },
+      tier3: { USD: 380, EUR: 350, KES: 20000 },
     },
   },
   {
@@ -99,7 +99,7 @@ export const PRICING_PACKAGES: PricingPackage[] = [
 
       tier2: { USD: 3500, EUR: 3200, KES: 455000 },
 
-      tier3: { USD: 950, EUR: 880, KES: 125000 },
+      tier3: { USD: 950, EUR: 880, KES: 60000 },
     },
     isRecommended: true,
   },
@@ -123,7 +123,7 @@ export const PRICING_PACKAGES: PricingPackage[] = [
 
       tier2: { USD: 7000, EUR: 6400, KES: 910000 },
 
-      tier3: { USD: 1540, EUR: 1420, KES: 200000 },
+      tier3: { USD: 1540, EUR: 1420, KES: 80000 },
     },
   },
 ];
