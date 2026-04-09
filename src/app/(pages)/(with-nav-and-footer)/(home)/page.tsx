@@ -6,7 +6,6 @@ import {
   HeroSection,
   Inspos,
   ProjectsGrid,
-  RatesTeaser,
   ReachOut,
   RecommendationLetters,
   TechnologiesMarquee,
@@ -24,7 +23,6 @@ const HomePage = () => {
       <ExperienceTimeline />
       <RecommendationLetters />
       <ProjectsGrid />
-      <RatesTeaser />
       <BlogsList />
       <Inspos />
       <ReachOut />

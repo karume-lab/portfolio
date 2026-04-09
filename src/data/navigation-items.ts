@@ -26,7 +26,6 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
   { href: "/#experience", label: "Experience", icon: Briefcase },
   { href: "/#recommendations", label: "Recommendations", icon: ThumbsUp },
   { href: "/#projects", label: "Projects", icon: Code },
-  { href: "/#rates", label: "Rates", icon: ReceiptText },
   { href: "/#reach-out", label: "Reach Out", icon: Mail },
   { href: "/#inspos", label: "Inspos", icon: Stars },
   { href: "/#blogs", label: "Blogs", icon: Library },
