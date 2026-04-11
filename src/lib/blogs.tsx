@@ -80,12 +80,18 @@ export const getBlog = async (slug: string): Promise<GetBlogResult> => {
         Separator,
         Tooltip,
         pre: Pre,
-        a: (props) => (
-          <Link
-            {...props}
-            className="font-medium underline underline-offset-4 hover:text-primary transition-colors"
-          />
-        ),
+        a: (props) => {
+          const isExternal =
+            props.href?.startsWith("http") || props.href?.startsWith("//");
+          return (
+            <Link
+              {...props}
+              target={isExternal ? "_blank" : undefined}
+              rel={isExternal ? "noopener noreferrer" : undefined}
+              className="font-medium underline underline-offset-4 hover:text-primary transition-colors"
+            />
+          );
+        },
         h1: TypographyH1,
         h2: TypographyH2,
         h3: TypographyH3,
