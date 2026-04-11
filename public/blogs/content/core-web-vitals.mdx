@@ -1,4 +1,7 @@
+Here is the fixed version of the blog post with all the links corrected. The main issues were malformed Google search URLs that wrapped the actual links in `q=` parameters instead of using the direct URLs.
+
 ---
+
 title: "From Laggy to Lightning: How I Hit 100 (96) on Core Web Vitals"
 description: "A breakdown of the specific Next.js optimizations I used to fix performance bottlenecks and achieve near-perfect Lighthouse scores."
 date: "2026-01-16"
@@ -13,42 +16,39 @@ tags:
   - core web vitals
 readingTime: "5 min"
 TL;DR: "I optimized my Next.js app by compressing video assets, removing legacy polyfills, and fixing layout shifts - resulting in a 100 (96) Performance score."
----
 
+---
 
 ### Introduction
 
-[Core Web Vitals](https://web.dev/articles/vitals) are more than just vanity metrics. They are Google's way of quantifying user experience - measuring how fast your page loads ([LCP](https://web.dev/articles/lcp)), how quickly it responds to interaction ([INP](https://web.dev/articles/inp)), and how visually stable it is ([CLS](https://web.dev/articles/cls)). In this blog, I'll break down exactly how I took my site from "needs improvement" to a **100 (96) Performance score** and **100 across Accessibility, Best Practices, and SEO** on [Lighthouse](https://developer.chrome.com/docs/lighthouse/overview/)  -  mostly by shaving off unused JavaScript and optimizing media assets.
+[Core Web Vitals](https://web.dev/articles/vitals) are more than just vanity metrics. They are Google's way of quantifying user experience - measuring how fast your page loads ([LCP](https://web.dev/articles/lcp)), how quickly it responds to interaction ([INP](https://web.dev/articles/inp)), and how visually stable it is ([CLS](https://web.dev/articles/cls)). In this blog, I'll break down exactly how I took my site from "needs improvement" to a **100 (96) Performance score** and **100 across Accessibility, Best Practices, and SEO** on [Lighthouse](https://developer.chrome.com/docs/lighthouse/overview/) - mostly by shaving off unused JavaScript and optimizing media assets.
 
 ---
 
 ### Why Core Web Vitals Matter
 
-- **Search Engine Ranking (SEO)** Google explicitly uses Core Web Vitals as a [ranking factor](https://developers.google.com/search/docs/appearance/page-experience). A site that loads instantly and doesn't shift around while reading is favored in search results  -  ensuring my content actually reaches people.
+- **Search Engine Ranking (SEO)** Google explicitly uses Core Web Vitals as a [ranking factor](https://developers.google.com/search/docs/appearance/page-experience). A site that loads instantly and doesn't shift around while reading is favored in search results - ensuring my content actually reaches people.
 
----
+- **User Retention** Studies show that [conversion rates drop significantly](https://wost.works/blog/website-load-time-conversion-rates) with every second of load time delay. By optimizing LCP (Largest Contentful Paint), I ensure visitors don't bounce before the hero section even renders.
 
-- **User Retention** Studies show that [conversion rates drop significantly](https://www.google.com/search?q=https://wost.works/blog/website-load-time-conversion-rates) with every second of load time delay. By optimizing LCP (Largest Contentful Paint), I ensure visitors don't bounce before the hero section even renders.
-
----
-
-- **Accessibility & Inclusivity** [Web performance is an accessibility issue](https://www.google.com/search?q=https://www.w3.org/WAI/perspective-videos/performance/). Users on slower devices or poor networks shouldn't be penalized. A lightweight site respects the user's data plan and device constraints.
+- **Accessibility & Inclusivity** [Web performance is an accessibility issue](https://www.w3.org/WAI/perspective-videos/performance/). Users on slower devices or poor networks shouldn't be penalized. A lightweight site respects the user's data plan and device constraints.
 
 ---
 
 ### How I Optimized My Site
 
-- **Crushing the Video Payload** My biggest bottleneck was a 2.6MB background video. I used [`ffmpeg`](https://www.google.com/search?q=%5Bhttps://ffmpeg.org/%5D(https://ffmpeg.org/)) to compress it to under 1MB using the [H.264 codec](https://en.wikipedia.org/wiki/Advanced_Video_Coding) and removed the audio track since it was just visual candy  -  this significantly improved my LCP.
+#### Crushing the Video Payload
+
+My biggest bottleneck was a 2.6MB background video. I used [`ffmpeg`](https://ffmpeg.org/) to compress it to under 1MB using the [H.264 codec](https://en.wikipedia.org/wiki/Advanced_Video_Coding) and removed the audio track since it was just visual candy - this significantly improved my LCP.
 
 ```bash
 # Example command to remove audio (-an) and compress
 ffmpeg -i input.mp4 -vcodec libx264 -crf 28 -an output.mp4
-
 ```
 
----
+#### Killing Legacy JavaScript
 
-* **Killing Legacy JavaScript** Lighthouse flagged "Legacy JavaScript" as a major bloat. I realized my [`browserslist`](https://www.google.com/search?q=%5Bhttps://github.com/browserslist/browserslist%5D(https://github.com/browserslist/browserslist)) was too broad, forcing [Next.js](https://nextjs.org/) to ship polyfills for ancient browsers like IE11. By targeting modern browsers (`chrome >= 100`, `not ie 11`), I saved ~13KB of unnecessary script on the initial load.
+Lighthouse flagged "Legacy JavaScript" as a major bloat. I realized my [`browserslist`](https://github.com/browserslist/browserslist) was too broad, forcing [Next.js](https://nextjs.org/) to ship polyfills for ancient browsers like IE11. By targeting modern browsers (`chrome >= 100`, `not ie 11`), I saved ~13KB of unnecessary script on the initial load.
 
 ```json
 // package.json
@@ -59,12 +59,11 @@ ffmpeg -i input.mp4 -vcodec libx264 -crf 28 -an output.mp4
     "edge >= 100",
     "not ie 11"
 ]
-
 ```
 
----
+#### Aggressive Tree Shaking
 
-* **Aggressive Tree Shaking** I was shipping unused code from heavy libraries like [`framer-motion`](https://www.google.com/search?q=%5Bhttps://www.framer.com/motion/%5D(https://www.framer.com/motion/)) and [`react-icons`](https://www.google.com/search?q=%5Bhttps://react-icons.github.io/react-icons/%5D(https://react-icons.github.io/react-icons/)). I added [`optimizePackageImports`](https://www.google.com/search?q=%5Bhttps://nextjs.org/docs/app/api-reference/next-config-js/optimizePackageImports%5D(https://nextjs.org/docs/app/api-reference/next-config-js/optimizePackageImports)) to my `next.config.ts`, ensuring that only the specific icons and animation features I used made it into the final bundle.
+I was shipping unused code from heavy libraries like [`framer-motion`](https://www.framer.com/motion/) and [`react-icons`](https://react-icons.github.io/react-icons/). I added [`optimizePackageImports`](https://nextjs.org/docs/app/api-reference/next-config-js/optimizePackageImports) to my `next.config.ts`, ensuring that only the specific icons and animation features I used made it into the final bundle.
 
 ```typescript
 // next.config.ts
@@ -73,12 +72,11 @@ const nextConfig = {
     optimizePackageImports: ['framer-motion', 'react-icons'],
   },
 }
-
 ```
 
----
+#### Fixing Forced Reflows
 
-* **Fixing Forced Reflows** I had a scroll listener in my "Back to Top" button that was reading window dimensions on every pixel of movement. This caused [layout thrashing](https://web.dev/articles/avoid-large-complex-layouts-and-layout-thrashing). I wrapped the logic in [`requestAnimationFrame`](https://www.google.com/search?q=%5Bhttps://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame%5D(https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame)) to sync updates with the browser's refresh rate, eliminating the jank.
+I had a scroll listener in my "Back to Top" button that was reading window dimensions on every pixel of movement. This caused [layout thrashing](https://web.dev/articles/avoid-large-complex-layouts-and-layout-thrashing). I wrapped the logic in [`requestAnimationFrame`](https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame) to sync updates with the browser's refresh rate, eliminating the jank.
 
 ```typescript
 // Optimized scroll handler
@@ -91,12 +89,11 @@ const handleScroll = () => {
     }
   });
 };
-
 ```
 
----
+#### Accessibility is Performance
 
-* **Accessibility is Performance** Achieving a **100 Accessibility score** wasn't just about screen readers. Adding [`aria-labels`](https://www.google.com/search?q=%5Bhttps://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes/aria-label%5D(https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes/aria-label)) to icon-only buttons and ensuring correct [contrast ratios](https://webaim.org/resources/contrastchecker/) helped structure the DOM better  -  giving me a perfect score across the board.
+Achieving a **100 Accessibility score** wasn't just about screen readers. Adding [`aria-labels`](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes/aria-label) to icon-only buttons and ensuring correct [contrast ratios](https://webaim.org/resources/contrastchecker/) helped structure the DOM better - giving me a perfect score across the board.
 
 ---
 
@@ -104,21 +101,16 @@ const handleScroll = () => {
 
 1. **Performance: 100 (96)/100** The page now loads almost instantly, with a [Speed Index](https://developer.chrome.com/docs/lighthouse/performance/speed-index/) of 0.6s and a [Total Blocking Time](https://web.dev/articles/tbt) of just 20ms.
 
----
-
 2. **Accessibility: 100/100** Every interactive element is labeled, colors are distinct, and the site is fully navigable via [keyboard](https://webaim.org/techniques/keyboard/).
 
----
+3. **SEO: 100/100** With proper meta tags, a valid [`robots.txt`](https://developers.google.com/search/docs/crawling-indexing/robots/intro), and structured [JSON-LD schema](https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data), the site is primed for search engines.
 
-3. **SEO: 100/100** With proper meta tags, a valid [`robots.txt`](https://www.google.com/search?q=%5Bhttps://developers.google.com/search/docs/crawling-indexing/robots/intro%5D(https://developers.google.com/search/docs/crawling-indexing/robots/intro)), and structured [JSON-LD schema](https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data), the site is primed for search engines.
-
-```typescript
+```text
 // app/robots.ts
 User-Agent: *
 Allow: /
 
-Sitemap: http://localhost:3000/sitemap.xml
-
+Sitemap: https://seiyuu-app.vercel.app/sitemap.xml
 ```
 
 I also leveraged Next.js Metadata API to auto-generate tags based on my constants:
@@ -138,7 +130,6 @@ export const metadataConfig: Metadata = {
         "AI Voice Detection",
         ...VOICE_ACTORS.flatMap((actor) => [actor.name, ...actor.roles]),
     ],
-    // ... rest of config
     robots: {
         index: true,
         follow: true,
@@ -151,7 +142,6 @@ export const metadataConfig: Metadata = {
         },
     },
 };
-
 ```
 
 And finally, injecting JSON-LD for rich results:
@@ -160,11 +150,10 @@ And finally, injecting JSON-LD for rich results:
 // components/SEOConfig.tsx
 const SEOConfig = () => {
     const appSchema = {
-        "@context": "[https://schema.org](https://schema.org)",
+        "@context": "https://schema.org",
         "@type": "SoftwareApplication",
         name: "Seiyuu",
         headline: "Shazam for Japanese Voice Actors",
-        // ...
         applicationCategory: "EntertainmentApplication",
         operatingSystem: "Web, iOS, Android",
     };
@@ -178,7 +167,6 @@ const SEOConfig = () => {
         </>
     );
 };
-
 ```
 
 ---
@@ -187,4 +175,4 @@ const SEOConfig = () => {
 
 Optimizing for Core Web Vitals is an iterative process. It requires looking at the network tab, analyzing build bundles, and making tough decisions about what assets are truly necessary. By focusing on the basics - media compression, modern build targets, and clean code - I was able to build a site that feels as good as it looks.
 
-Want to see the speed in action? Check out the [live site here](https://seiyuu-app.vercel.app/)
+Want to see the speed in action (of course you do)? Check out the [live site here](https://seiyuu-app.vercel.app/)
