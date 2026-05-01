@@ -1,0 +1,218 @@
+---
+
+title: "elePHPant in the Room"
+description: "A story of moving from a JS-only mindset to PHP-native deployment to save costs and automate GoDaddy."
+date: "2026-04-11"
+slug: "elePHPant-in-the-room"
+image: "/blogs/cover-images/elePHPant-in-the-room.png"
+caption: "An elephant with Laravel for earrings and tattoos of GoDaddy (left leg) and PHP (right leg)"
+tags:
+  - web
+  - laravel
+  - filament
+  - livewire
+  - php
+  - blade
+  - ci/cd
+  - godaddy
+  - devops
+readingTime: "7 min"
+TL;DR: "Using Laravel and GitHub Actions to automate GoDaddy deployment to avoid going past client's budget."
+
+---
+
+### Introduction
+
+Anyone who knows me knows I live and breathe [JavaScript](https://developer.mozilla.org/en-US/docs/Web/JavaScript) ([TypeScript](https://www.typescriptlang.org/)). I prefer a JS ecosystem for building mobile and web apps - it's where I feel most at home. But recently, I faced a classic client dilemma: they wanted zero extra costs for a [VPS](https://en.wikipedia.org/wiki/Virtual_private_server), no complicated database overhead, and they already had a [GoDaddy](https://www.godaddy.com/) account they wanted to keep everything on.
+
+In this post, I'll walk you through how I navigated the transition from a "Next.js by default" mindset to a fully automated [PHP](https://www.php.net/) / [Laravel](https://laravel.com/) stack for this project. *(Feel free to check out the **[Hailerz GitHub repo here](https://github.com/karume-lab/hailerz)**, or see the **[deployed site live at tiwafoods.com](https://tiwafoods.com)** - though note that domain will be changing later!)*
+
+---
+
+### The Dilemma: JavaScript vs. Reality
+
+When the client said "GoDaddy," I immediately started weighing my options. I had to balance my love for TypeScript with the reality of shared hosting constraints.
+
+**The options on my whiteboard:**
+
+* **Next.js with Static Export:** Great for speed, but what about the backend? I'd need a headless CMS or an external API, which adds the "extra costs" the client specifically vetoed.
+* **Next.js + MySQL:** Shared hosting can run [Node.js](https://nodejs.org/) sometimes, but it's often a versioning nightmare and notoriously unstable on lower-tier plans.
+* **Next.js + PHP Backend:** Possible, but [static exports](https://nextjs.org/docs/app/building-your-application/deploying/static-exports) can have Next-specific routing issues when paired with a legacy Apache server.
+* **Go Full PHP (Laravel + Livewire + Filament):** The "old school" route, but built on modern foundations.
+
+---
+
+### Tu tu tu tu Dora! Dora Dora Dora the Explorer!
+
+So, I went with PHP. Why? Because as much as developers love chasing new frameworks, the reality is that PHP still quietly runs the web. [W3Techs reports](https://w3techs.com/technologies/details/pl-php) that PHP powers over 71% of websites with a known server-side language, driven largely by the fact that [WordPress alone accounts for ~43% of the entire internet](https://w3techs.com/technologies/details/cm-wordpress). 
+
+On top of that, most clients are already anchored to shared hosting setups. Shared hosting remains the most popular entry point, [capturing nearly 38% of the hosting market](https://www.bluehost.com/blog/web-hosting-statistics-market-share/), with platforms like GoDaddy as the default choice. Recognizing this, I thought it would be a good opportunity for me to finally dance to the piper's tune. 
+
+Because **PHP is natively supported by GoDaddy with little to no configuration**, I didn't have to fight the infrastructure. I wasn't deeply familiar with GoDaddy's modern quirks initially, so I used AI to navigate the landscape. Once I logged in, I hit home with the familiar [cPanel](https://cpanel.net/) layout - it felt like a tech archaeology trip.
+
+Choosing Laravel (specifically the [TALL Stack](https://dev.to/jeroenvanrensen/the-tall-stack-explained-4oif)) allowed me to:
+
+1.  Provision a new [MySQL](https://www.mysql.com/) database directly through the cPanel wizard.
+2.  Keep the entire project in a single repo.
+3.  Leverage [Filament](https://filamentphp.com/) for a beautiful admin panel that took minutes to set up instead of days of custom React forms.
+
+---
+
+### The Technical Onboarding: Getting My Hands Dirty
+
+Once I committed to PHP, I had to translate that decision into a working server environment. Here is the exact step-by-step journey of turning a blank GoDaddy account into a Laravel-ready machine.
+
+#### Got GoDaddy Credentials
+
+The first hurdle was purely logistical. The client had the account, but I needed the keys. After a few emails, I received the cPanel login details - a username and a password. This was my entry ticket into the hosting environment. Without these, nothing else mattered.
+
+#### Navigated with AI Assistance
+
+I will be honest: I am not a cPanel native. I grew up on Terminals and cloud dashboards. The GoDaddy interface felt like stepping into a time machine. I had no idea where the File Manager was, how to find the MySQL wizard, or even where to look for the terminal.
+
+I leaned heavily on AI. I would take a screenshot of whatever page I landed on, upload it, and ask "Where do I click next?" This back-and-forth guided me to critical tools like the **File Manager** (for viewing files), the **MySQL Database Wizard** (for setting up the database), and eventually the **Terminal** (for running Artisan commands). It was slow, but it worked.
+
+#### Activated SSH Access
+
+The terminal was my goal. I hate clicking through file trees. But when I first looked for the "Terminal" icon in cPanel, it was nowhere to be found. I discovered that GoDaddy disables SSH by default on shared hosting plans for "security reasons."
+
+I had to back out of cPanel entirely and go to the main GoDaddy hosting dashboard. Under the "Settings" tab, I found a toggle labeled "SSH Access." I flipped it to "On" and waited about ten minutes for the server to provision the access. When I returned to cPanel, the Terminal icon had magically appeared in the "Advanced" section.
+
+#### Generated SSH Keys
+
+Typing a password every time I wanted to run a command or push a deployment felt wrong. I am an Arch Linux user - I value automation. On my local machine, I generated a dedicated SSH key pair specifically for this GoDaddy server:
+
+```bash
+ssh-keygen -t ed25519 -f ~/.ssh/godaddy
+```
+
+This created a private key (`godaddy`) and a public key (`godaddy.pub`). The `ed25519` algorithm is modern, secure, and fast.
+
+#### Added Public Key to the Server
+
+Having a key pair is useless if the server doesn't trust you. I used the `ssh-copy-id` utility to upload my public key to the GoDaddy server:
+
+```bash
+ssh-copy-id -i ~/.ssh/godaddy.pub username@72.167.250.36
+```
+
+After entering my cPanel password one last time, the public key was added to the `~/.ssh/authorized_keys` file on the server. From that moment on, I could log in without a password, which is a prerequisite for any kind of automated CI/CD pipeline.
+
+#### Created a Production Database
+
+An empty server is just a server. I needed a place to store talent profiles and bookings. Back in cPanel, I opened the "MySQL Database Wizard."
+
+I walked through the steps:
+
+1.  Created a database.
+2.  Created a database user.
+3.  Autogenerated a strong, complex password.
+4.  **Crucially:** On the final step, I clicked "ALL PRIVILEGES." Without this, Laravel would not be able to run migrations or write to the tables.
+
+#### Configured the .env File
+
+With the database ready, I needed to tell Laravel how to connect to it. I SSH'd into the server and manually created the `.env` file inside the `hailerz` directory using `vim`, obviously.
+
+```bash
+vim /home/username/hailerz/.env
+```
+
+I populated it with the database credentials from the previous step, set `APP_ENV=production`, and added the admin credentials for the seeder. This is also where I learned a hard lesson: if your database password contains special characters like `#`, `@`, or `$`, you **must** wrap the entire password string in double quotes. Otherwise, Laravel's parser chokes, and you get a cryptic connection failure.
+
+```env
+DB_PASSWORD="[DB_PASSWORD]"
+ADMIN_EMAIL="[EMAIL_ADDRESS]"
+ADMIN_PASSWORD="[PASSWORD]"
+```
+
+### The Deployment Disaster: Nuking the Portfolio
+
+Every explorer hits a trap eventually. In my first attempt to deploy, I accidentally nuked the client's existing portfolio site. Because I was trying to point things to the root `public_html`, I managed to overwrite the live site.
+
+This disaster forced a pivot to a different domain, `tiwafoods.com`. Unfortunately, this domain was in a state of absolute neglect. It had no [SSL](https://en.wikipedia.org/wiki/Transport_Layer_Security) configured and the [DNS records](https://developer.mozilla.org/en-US/docs/Glossary/DNS) were pointing to old [DreamHost](https://www.dreamhost.com/) servers instead of GoDaddy. I had to manually update the A records, swap the nameservers and essentially rebuild the domain's plumbing from scratch before even thinking about code.
+
+---
+
+#### Set up the Symlink Structure
+
+The final puzzle piece was the file structure. GoDaddy expects websites to live in `public_html`, but Laravel's entry point is inside the `public/` folder. I could not just move my Laravel app into `public_html` because there was already a live client site running there.
+
+I needed to isolate Tiwa Foods into its own "room." I created a dedicated directory for the addon domain:
+
+```bash
+mkdir -p /home/username/tiwafoods.com
+ln -s /home/username/hailerz/public /home/username/tiwafoods.com/public
+```
+
+Then, in cPanel's "Domains" section, I pointed the document root of `tiwafoods.com` to `/[tiwafoods.com/public](https://tiwafoods.com/public)`. This kept the client's site completely untouched while giving Tiwa Foods its own clean slate.
+
+---
+
+### Why spend 2 minutes on a manual upload when you can spend 2 hours automating it?
+
+In a vacuum of pure arithmetic, automation always pays for itself: given an infinite horizon, the time saved will always surpass the time spent building it. In the real world, you just have to hope the task doesn't become obsolete before you break even.
+
+One of the biggest pain points of shared hosting is the "FTP Drag-and-Drop" trauma. I refused to do that. With SSH and passwordless login working, I setup a [CI/CD](https://about.gitlab.com/topics/ci-cd/) pipeline using [GitHub Actions](https://github.com/features/actions).
+
+Here is the logic I used to bridge my local development with the GoDaddy server:
+
+```yaml
+# .github/workflows/deploy.yml
+name: Deploy to GoDaddy
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Build Assets
+        run: |
+          npm install
+          npm run build
+          
+      - name: Sync to Server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "."
+          target: "~/hailerz"
+
+      - name: Remote Commands (Migrate and Cache)
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd hailerz
+            php artisan migrate --force
+            php artisan optimize
+```
+
+---
+
+### Overcoming the "Forbidden" 403
+
+Shared hosting doesn't always like Laravel's `/public` folder structure. I had to get creative with [symbolic links](https://en.wikipedia.org/wiki/Symbolic_link) to ensure `public_html` stayed clean.
+
+I created an isolated directory and symlinked it:
+
+```bash
+ln -s /home/username/hailerz/public /home/username/tiwafoods.com
+```
+
+The process was exhausting. I spent hours staring at a "403 Forbidden" error and an insecure HTTP warning. Eventually, I gave up and went to sleep, leaving the site broken.
+
+When I woke up, the "magic" had happened. Because the nameserver changes had finally propagated, GoDaddy's [AutoSSL](https://docs.cpanel.net/knowledge-base/security/autossl/) was able to verify the domain. The site had automatically transitioned to **HTTPS** with a healthy certificate. As it turns out, the "Forbidden" issue was largely tied to the server refusing to serve content over an unverified connection while the app was expecting secure protocols. Everything was working perfectly.
+
+---
+
+### Conclusion
+
+Will I be using PHP again in the future, maybe? Possibly.
