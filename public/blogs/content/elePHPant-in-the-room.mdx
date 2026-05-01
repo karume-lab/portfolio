@@ -16,7 +16,7 @@ tags:
   - ci/cd
   - godaddy
   - devops
-readingTime: "7 min"
+readingTime: "12 min"
 TL;DR: "Using Laravel and GitHub Actions to automate GoDaddy deployment to avoid going past client's budget."
 
 ---
@@ -210,6 +210,135 @@ ln -s /home/username/hailerz/public /home/username/tiwafoods.com
 The process was exhausting. I spent hours staring at a "403 Forbidden" error and an insecure HTTP warning. Eventually, I gave up and went to sleep, leaving the site broken.
 
 When I woke up, the "magic" had happened. Because the nameserver changes had finally propagated, GoDaddy's [AutoSSL](https://docs.cpanel.net/knowledge-base/security/autossl/) was able to verify the domain. The site had automatically transitioned to **HTTPS** with a healthy certificate. As it turns out, the "Forbidden" issue was largely tied to the server refusing to serve content over an unverified connection while the app was expecting secure protocols. Everything was working perfectly.
+
+---
+
+### The Final Boss: Debugging Open Graph Images in Production
+
+This has been an excellent, real-world debugging journey through the complexities of server environments versus local development. When moving an application from a local setup (like Laravel Sail or Valet) to a shared hosting production environment (like GoDaddy cPanel), Open Graph (OG) image generation often breaks due to rigid security and resource constraints.
+
+Here is a detailed breakdown of the issues we encountered, the hypotheses we tested, and the final architectural solution that successfully resolved the broken OG metadata.
+
+#### Phase 1: The Initial Issue – Blank White OG Cards
+
+**The Problem:**
+In the local development environment, sharing a Talent profile link successfully generated an Open Graph preview card with the talent's image and the agency logo overlaid on top. In production, however, the OG tags were present, but social sharing debuggers (like Facebook or LinkedIn) rendered a completely blank, white box instead of the expected composite image.
+
+**The Hypothesis:**
+The initial assumption was an issue with the fallback logic or a missing primary image. We suspected that when a talent lacked an uploaded profile photo, the application was attempting to generate a composite image with a `null` base, resulting in a blank output.
+
+**The Initial Fixes:**
+1.  **Robust Accessors:** We rewrote the `getProfilePhotoUrlAttribute` in the `Talent` model to guarantee an image URL was always returned. If the primary image was missing, it fell back to a dynamic initials generator (`ui-avatars.com`).
+2.  **Controller Hardening:** We updated the `OgImageController` to catch exceptions during the image composition process using Intervention Image, returning a solid blue fallback canvas if anything failed.
+
+**The Result:** This fixed the missing initials issue on the standard UI cards, but the OG endpoint still failed in production.
+
+#### Phase 2: The Silent Crash – 500 Server Error
+
+**The Problem:**
+Upon closer inspection using a direct URL test (bypassing the social scrapers and hitting the `/og/talent/{slug}` endpoint directly in an incognito window), the server was throwing a `500 Internal Server Error`.
+
+**The Hypothesis:**
+A 500 error during image processing usually indicates one of three things:
+1.  The PHP GD extension is missing or lacks WebP support.
+2.  The server is running out of memory (Memory Exhaustion) while decoding the image into RAM.
+3.  A syntax error in the Intervention Image library (e.g., using v4 syntax on a v3 installation).
+
+**The Attempted Fixes:**
+1.  **GD Extension Verification:** We confirmed via cPanel's "Select PHP Version" that the `gd` extension was checked and active.
+2.  **Memory Limit Increase:** We advised increasing the PHP `memory_limit` to `256M` or `512M` in cPanel to ensure large images could be unpacked into memory.
+3.  **Syntax Alignment:** We ensured the controller was using the correct, unified syntax for Intervention Image.
+4.  **Temporary Debugging:** We implemented a temporary `try/catch` block that forcefully dumped the raw exception to the browser (`dd($e->getMessage())`) to expose the hidden error.
+
+#### Phase 3: Uncovering the Root Cause – The Database Cache Conflict
+
+**The Problem:**
+The temporary debug dump revealed the true culprit inside the `laravel.log`:
+
+```
+SQLSTATE[22007]: Invalid datetime format: 1366 Incorrect string value: '\x9D\x01*\xB0\x04v...' for column 'hailerz'.'cache'.'value'
+```
+
+**The Analysis:**
+This log entry completely shifted our understanding of the problem. The issue was not with generating the image itself; the image was being generated perfectly. The crash occurred when Laravel attempted to *save* that generated image.
+
+1.  **The Goal:** The `OgImageController` used `Cache::remember()` to store the generated image so it wouldn't have to rebuild the composite logo overlay every time a social bot scraped the page.
+2.  **The Output:** The controller output raw, binary WebP image bytes (a string of unreadable data like `\x9D\x01*\xB0`).
+3.  **The Environment:** On shared hosting, the Laravel cache driver is almost always set to `database` (storing cache in MySQL) rather than `redis` or `memcached` (which handle binary data effortlessly).
+4.  **The Crash:** MySQL `text` or `mediumtext` columns are designed for UTF-8 string characters. When Laravel attempted to execute an `INSERT` statement containing raw binary image data into the `cache` table, MySQL immediately rejected it with an `Incorrect string value` error, triggering the fatal 500 crash.
+
+#### Phase 4: Base64 Encoding
+
+**The Strategy:**
+To cache binary image data inside a standard MySQL database column, the data must be transformed into a safe, text-only format.
+
+**The Fix:**
+We refactored the caching logic in the `OgImageController`:
+
+1.  **Encoding for Storage:** Before saving the image to the cache, we passed the raw bytes through PHP's `base64_encode()`. This converted the binary image data into a long, harmless string of alphanumeric characters that MySQL happily accepted.
+2.  **Decoding for the Browser:** When retrieving the image from the cache (or after generating it), we passed the base64 string through `base64_decode()` to turn it back into raw binary bytes.
+3.  **Serving the Response:** We served those decoded binary bytes to the browser with the correct `Content-Type: image/webp` headers.
+
+**The Code Implementation:**
+
+```php
+// Step 1: Cache the Base64 String
+$base64Image = Cache::remember($cacheKey, 86400, function () use ($talent) {
+    // ... image generation logic ...
+    
+    // Return the BASE64 encoded string so MySQL accepts it
+    return base64_encode($image->encodeUsingMediaType('image/webp')->toString());
+});
+
+// Step 2: Decode back to binary
+$imageBytes = base64_decode($base64Image);
+
+// Step 3: Serve the image
+return Response::make($imageBytes, 200, [
+    'Content-Type'  => 'image/webp',
+    'Cache-Control' => 'public, max-age=86400',
+]);
+```
+
+#### Phase 5: The Final Hurdle – Scrapers Hate WebP
+
+Just when I thought I had defeated the final boss with the base64 caching fix, I ran into a classic scraper compatibility issue.
+
+**The Problem:**
+Testing the newly cached images revealed an annoying inconsistency. Sharing the link on WhatsApp worked perfectly, but strict scrapers like LinkedIn, iMessage, and debugging tools like OpenGraph.xyz were *still* failing, rendering a blank box or a broken link icon.
+
+**The Hypothesis:**
+While modern web browsers love WebP because it's fast and lightweight, social media scrapers are notoriously outdated. WhatsApp and Discord have updated their bots to understand `image/webp`. However, LinkedIn, iMessage, OpenGraph.xyz, and some Facebook servers strictly expect `image/jpeg` or `image/png`. If you hand them a WebP file, they silently fail.
+
+**The Fix:**
+The industry standard for Open Graph images is JPEG. It's universally supported by every single scraper on the internet. I needed to tell my `OgImageController` to encode the final image as a JPEG instead of a WebP.
+
+Leaning on my AI workflow, I drafted a prompt to quickly refactor the controller code:
+
+```markdown
+# Role & Context
+You are a Senior Full-Stack Laravel Developer. We are fixing an Open Graph scraper compatibility issue. Currently, our `OgImageController` generates and serves `image/webp`. While this works for some platforms (like WhatsApp), strict scrapers (like LinkedIn and OpenGraph.xyz) are rejecting the WebP format, resulting in broken OG previews.
+
+# 🚨 Your Task: Convert Output to JPEG
+* **Target:** `app/Http/Controllers/OgImageController.php`
+* **Action:** Modify the `show` method to encode, cache, and serve the image as a standard JPEG instead of WebP.
+
+Please apply these specific changes to the `show` method:
+1. Update the cache key to `$cacheKey = "talent_og_v5_{$talent->id}";` (We must bump the version to bypass the currently cached WebP strings).
+2. Change the encoding lines inside the try/catch blocks from:
+   `encodeUsingMediaType('image/webp')` 
+   to:
+   `encodeUsingMediaType('image/jpeg')`
+3. Change the final Response header from:
+   `'Content-Type' => 'image/webp'` 
+   to: 
+   `'Content-Type' => 'image/jpeg'`
+
+**Output:** Provide the fully updated `OgImageController.php` code.
+```
+
+**The Result:**
+Once the updated controller was pushed via the CI/CD pipeline, I jumped back into OpenGraph.xyz and hit the "Fetch New Scrape" button to bust their cache. The lights finally came on. The OG cards rendered perfectly! (And if it had still failed after the JPEG switch, my fallback theory was that GoDaddy's "ModSecurity" firewall was actively blocking the OpenGraph bot—thankfully, we didn't have to go down that rabbit hole).
 
 ---
 
