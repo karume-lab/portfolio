@@ -15,13 +15,15 @@ const OpenInLargeScreenPopover = () => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    const checkTouchDevice = () => {
-      setIsVisible("ontouchstart" in window || navigator.maxTouchPoints > 0);
+    const checkScreenSize = () => {
+      const isTouch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
+      const isSmallScreen = window.innerWidth < 1024;
+      setIsVisible(isTouch && isSmallScreen);
     };
 
-    checkTouchDevice();
-    window.addEventListener("resize", checkTouchDevice);
-    return () => window.removeEventListener("resize", checkTouchDevice);
+    checkScreenSize();
+    window.addEventListener("resize", checkScreenSize);
+    return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
 
   if (!isVisible) return null;
