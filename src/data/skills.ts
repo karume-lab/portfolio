@@ -41,7 +41,7 @@ export const SKILLS: Skill[] = [
   {
     title: "BLOCKCHAIN",
     description:
-      "Develops and tests Solidity smart contracts with Hardhat  -  creating secure, transparent, and decentralized applications.",
+      "Develops and tests Solidity smart contracts and Stellar-based solutions  -  creating secure, transparent, and decentralized applications.",
     icon: Network,
   },
 ];

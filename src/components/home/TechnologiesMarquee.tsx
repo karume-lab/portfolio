@@ -9,11 +9,6 @@ import {
   CarouselContent,
   CarouselItem,
 } from "@/components/ui/carousel";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { TECHNOLOGIES } from "@/data";
 
 const TechnologiesMarquee = () => {
@@ -37,31 +32,27 @@ const TechnologiesMarquee = () => {
         onMouseLeave={() => plugin.current.play()}
       >
         <CarouselContent>
-          {TECHNOLOGIES.map(({ href, logoPath, label }) => (
+          {TECHNOLOGIES.map(({ href, badgeUrl, label }) => (
             <CarouselItem
               key={href}
-              className="basis-1/3 sm:basis-1/4 md:basis-1/6 xl:basis-1/12 flex items-center justify-center"
+              className="basis-1/2 md:basis-1/4 lg:basis-1/5 xl:basis-1/6 flex items-center justify-center"
             >
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Link
-                    href={href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center"
-                  >
-                    <Image
-                      width={44}
-                      height={44}
-                      alt={`${label} logo`}
-                      priority
-                      src={logoPath}
-                      className="object-contain hover-to-reveal rounded-md"
-                    />
-                  </Link>
-                </TooltipTrigger>
-                <TooltipContent>{label}</TooltipContent>
-              </Tooltip>
+              <Link
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center"
+              >
+                <Image
+                  height={28}
+                  width={120}
+                  alt={`${label} badge`}
+                  priority
+                  src={badgeUrl}
+                  className="object-contain hover-to-reveal rounded-sm h-7 w-auto"
+                  unoptimized
+                />
+              </Link>
             </CarouselItem>
           ))}
         </CarouselContent>

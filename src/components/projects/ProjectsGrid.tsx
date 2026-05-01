@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TypographyP } from "@/components/ui/typography";
-import { PROJECTS } from "@/data";
+import { PROJECTS, TECHNOLOGIES } from "@/data";
 
 const ProjectsGrid = () => {
   const path = usePathname();
@@ -99,11 +99,26 @@ const ProjectsGrid = () => {
                     {description}
                   </TypographyP>
                   <div className="flex flex-wrap gap-2">
-                    {technologies.map((tech) => (
-                      <Badge key={`${title}-${tech}`} variant="secondary">
-                        {tech}
-                      </Badge>
-                    ))}
+                    {technologies.map((tech) => {
+                      const techData = TECHNOLOGIES.find(
+                        (t) => t.label.toLowerCase() === tech.toLowerCase(),
+                      );
+                      return techData ? (
+                        <Image
+                          key={`${title}-${tech}`}
+                          src={techData.badgeUrl}
+                          alt={tech}
+                          height={20}
+                          width={80}
+                          className="h-5 w-auto object-contain"
+                          unoptimized
+                        />
+                      ) : (
+                        <Badge key={`${title}-${tech}`} variant="secondary">
+                          {tech}
+                        </Badge>
+                      );
+                    })}
                   </div>
                 </CardContent>
               </div>
