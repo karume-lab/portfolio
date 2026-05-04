@@ -40,7 +40,7 @@ export const BlogListItem: React.FC<BlogListItemProps> = ({ blog }) => {
         </TypographyP>
 
         <div className="flex gap-2 flex-wrap mt-4">
-          {tags.map((tag) => (
+          {tags?.map((tag) => (
             <Badge key={tag} variant="secondary" className="uppercase">
               {tag}
             </Badge>

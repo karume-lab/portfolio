@@ -6,7 +6,6 @@ import {
   Library,
   type LucideIcon,
   Mail,
-  ReceiptText,
   Stars,
   ThumbsUp,
   User,
@@ -26,7 +25,7 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
   { href: "/#experience", label: "Experience", icon: Briefcase },
   { href: "/#recommendations", label: "Recommendations", icon: ThumbsUp },
   { href: "/#projects", label: "Projects", icon: Code },
-  { href: "/#reach-out", label: "Reach Out", icon: Mail },
-  { href: "/#inspos", label: "Inspos", icon: Stars },
   { href: "/#blogs", label: "Blogs", icon: Library },
+  { href: "/#inspos", label: "Inspos", icon: Stars },
+  { href: "/#reach-out", label: "Reach Out", icon: Mail },
 ];

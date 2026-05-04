@@ -22,7 +22,7 @@ const BlogsList = () => {
         {blogs
           .slice(0, path.includes("blogs") ? blogs.length : 4)
           .map((blog) => (
-            <BlogListItem blog={blog} key={blog.title} />
+            <BlogListItem blog={blog} key={blog.slug} />
           ))}
       </ul>
 

@@ -20,6 +20,7 @@ export const metadata = metadataConfig;
 interface RootLayoutProps extends Readonly<{ children: React.ReactNode }> {}
 
 import { NuqsAdapter } from "nuqs/adapters/next/app";
+import { SmoothScrollProvider } from "@/components/providers/SmoothScrollProvider";
 
 const RootLayout: React.FC<RootLayoutProps> = async ({ children }) => {
   return (
@@ -32,11 +33,13 @@ const RootLayout: React.FC<RootLayoutProps> = async ({ children }) => {
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
         id="root"
       >
-        <NuqsAdapter>
-          <ChangeMetadataTitleOnBlur />
-          <Toaster richColors />
-          {children}
-        </NuqsAdapter>
+        <SmoothScrollProvider>
+          <NuqsAdapter>
+            <ChangeMetadataTitleOnBlur />
+            <Toaster richColors />
+            {children}
+          </NuqsAdapter>
+        </SmoothScrollProvider>
       </body>
     </html>
   );
