@@ -34,6 +34,7 @@ import type { BlogFrontmatter } from "@/lib/types";
 interface GetBlogResult {
   compiledMDX: CompileMDXResult<BlogFrontmatter>;
   slug: string;
+  source: string;
 }
 
 export const getBlogs = async (): Promise<
@@ -114,7 +115,7 @@ export const getBlog = async (slug: string): Promise<GetBlogResult> => {
       },
     });
 
-    return { compiledMDX, slug };
+    return { compiledMDX, slug, source: file };
   } catch (err) {
     console.error(`Error loading blog "${slug}":`, err);
     notFound();

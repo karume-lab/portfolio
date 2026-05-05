@@ -1,6 +1,7 @@
 import { BlogListItem } from "@/components/blogs/BlogListItem";
 import BlogsList from "@/components/blogs/BlogsList";
 import { BlogsProvider } from "@/components/blogs/BlogsProvider";
+import { ExplainDropdown } from "@/components/blogs/ExplainDropdown";
 import TableOfContentsCard from "@/components/blogs/TableOfContentsCard";
 import BackToTopButton from "@/components/core/BackToTopButton";
 import ChangeMetadataTitleOnBlur from "@/components/core/ChangeMetadataTitleOnBlur";
@@ -50,4 +51,5 @@ export {
   BlogsList,
   BlogListItem,
   TableOfContentsCard,
+  ExplainDropdown,
 };

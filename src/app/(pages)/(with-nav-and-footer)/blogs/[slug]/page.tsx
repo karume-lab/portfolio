@@ -2,7 +2,7 @@ import { Calendar, Clock } from "lucide-react";
 import type { Metadata } from "next";
 import Image from "next/image";
 import type React from "react";
-import { BlogListItem } from "@/components";
+import { BlogListItem, ExplainDropdown } from "@/components";
 import { Badge } from "@/components/ui/badge";
 import {
   TypographyH1,
@@ -56,7 +56,7 @@ export const generateMetadata = async ({
 
 const BlogDetailPage: React.FC<BlogDetailParams> = async ({ params }) => {
   const slug = (await params).slug;
-  const { compiledMDX } = await getBlog(slug);
+  const { compiledMDX, source } = await getBlog(slug);
 
   const blog = compiledMDX.frontmatter;
 
@@ -65,16 +65,20 @@ const BlogDetailPage: React.FC<BlogDetailParams> = async ({ params }) => {
   return (
     <div className="max-w-7xl w-full mx-auto px-6 sm:px-8 lg:px-12 my-24">
       <header>
-        <div className="flex items-center gap-6 text-sm text-muted-foreground mb-6">
-          <span className="flex items-center gap-1">
-            <Calendar className="size-4" />
-            {timeSinceOrDate(blog.date)}
-          </span>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-6">
+          <div className="flex items-center gap-6 text-sm text-muted-foreground">
+            <span className="flex items-center gap-1">
+              <Calendar className="size-4" />
+              {timeSinceOrDate(blog.date)}
+            </span>
 
-          <span className="flex items-center gap-1">
-            <Clock className="size-4" />
-            {blog.readingTime}
-          </span>
+            <span className="flex items-center gap-1">
+              <Clock className="size-4" />
+              {blog.readingTime}
+            </span>
+          </div>
+
+          <ExplainDropdown title={blog.title} source={source} />
         </div>
 
         <TypographyH1 className="text-4xl font-bold mb-4">
