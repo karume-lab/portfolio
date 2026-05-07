@@ -1,7 +1,8 @@
 import { ExternalLink } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import SectionHeader from "@/components/core/SectionHeader";
-import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { recommendationLetters } from "@/data/recommendation-letters";
 
 const RecommendationLetters = () => {
@@ -14,17 +15,28 @@ const RecommendationLetters = () => {
       <div className="flex flex-wrap justify-start gap-4 mt-6">
         {recommendationLetters.map((letter) => (
           <div key={letter.id} className="w-full md:w-fit">
-            <Button variant="outline" className="w-full" asChild>
-              <Link
-                href={letter.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2"
+            <Link
+              href={letter.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block group"
+            >
+              <Badge
+                variant="outline"
+                className="w-full py-2 px-4 flex items-center gap-3 hover:bg-accent transition-colors"
               >
-                {letter.company}
-                <ExternalLink className="size-4" />
-              </Link>
-            </Button>
+                <div className="relative size-6 shrink-0 overflow-hidden rounded-sm grayscale group-hover:grayscale-0 transition-all duration-300">
+                  <Image
+                    src={letter.logo}
+                    alt={`${letter.company} logo`}
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+                <span className="font-medium">{letter.company}</span>
+                <ExternalLink className="size-4 ml-auto" />
+              </Badge>
+            </Link>
           </div>
         ))}
       </div>
