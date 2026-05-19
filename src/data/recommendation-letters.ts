@@ -20,4 +20,10 @@ export const recommendationLetters: RecommendationLetter[] = [
     href: "/recommendation-letters/hailerz-entertainment/daniel-karume-recommendation-letter-hailerz-entertainment.pdf" as Route,
     logo: "/recommendation-letters/hailerz-entertainment/logo.png",
   },
+  {
+    id: crypto.randomUUID(),
+    company: "Women Reform Nigeria",
+    href: "/recommendation-letters/women-reform/daniel-karume-recommendation-letter-women-reform.pdf" as Route,
+    logo: "/recommendation-letters/women-reform/logo.png",
+  },
 ];
