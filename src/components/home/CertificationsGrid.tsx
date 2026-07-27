@@ -1,7 +1,6 @@
 "use client";
 
 import { ArrowRight } from "lucide-react";
-import type { Route } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -101,7 +100,7 @@ const CertificationsGrid = () => {
 
       {!path.includes("certificates") && (
         <Button asChild className="float-right my-4" variant={"link"}>
-          <Link href={"/certificates" as Route}>
+          <Link href={"/certificates"}>
             CERTIFICATES
             <ArrowRight />
           </Link>
