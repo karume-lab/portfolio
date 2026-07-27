@@ -27,6 +27,24 @@ export const CERTIFICATIONS: Certificate[] = [
     ],
   },
   {
+    title: "Claude AI Certification",
+    description: "Certification in advanced prompt engineering and applied LLM development with Anthropic's Claude models.",
+    imagePath: "/certifications/claude.png",
+    skills: ["Generative AI", "Prompt Engineering", "LLMs", "Anthropic Claude"],
+  },
+  {
+    title: "Stellar Blockchain Development",
+    description: "Certification for completing the Stellar blockchain development program focusing on smart contracts and decentralized finance.",
+    imagePath: "/certifications/stellar.png",
+    skills: ["Blockchain", "Stellar Network", "Smart Contracts", "Web3"],
+  },
+  {
+    title: "Africa Tech for Development (AT4D)",
+    description: "Participation in the AT4D hackathon aiming to build impactful technology solutions for the African continent.",
+    imagePath: "/certifications/at4d.png",
+    skills: ["Hackathon", "Product Development", "Social Impact", "Team Collaboration"],
+  },
+  {
     title: "KeHMIS III Project Bootcamp",
     description:
       "Participated in a bootcamp focused on innovative solutions to public health challenges using eHealth and Artificial Intelligence in Kenya.",
@@ -58,4 +76,10 @@ export const CERTIFICATIONS: Certificate[] = [
     imagePath: "/certifications/power-hacks.png",
     skills: ["Git", "HTML5", "CSS3", "Python", "Django"],
   },
+  {
+    title: "Green Wells Development",
+    description: "Certificate of completion for specialized web development and environmental sustainability program.",
+    imagePath: "/certifications/green-wells.png",
+    skills: ["Web Development", "Sustainable Tech", "Project Management"],
+  }
 ];

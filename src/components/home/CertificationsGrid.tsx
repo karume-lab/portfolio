@@ -1,7 +1,12 @@
 "use client";
 
+import { ArrowRight } from "lucide-react";
+import type { Route } from "next";
 import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
+
 import { SectionHeader } from "@/components";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -18,6 +23,7 @@ import { CERTIFICATIONS, type Certificate } from "@/data";
 const CertificationsGrid = () => {
   const [selectedCert, setSelectedCert] = useState<Certificate | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const path = usePathname();
 
   const handleViewCert = (cert: Certificate) => {
     setSelectedCert(cert);
@@ -37,7 +43,10 @@ const CertificationsGrid = () => {
       <SectionHeader title="WHERE'S THE PROOF?" className="text-center" />
 
       <div className="grid gap-6 sm:gap-8 md:grid-cols-2">
-        {CERTIFICATIONS.map((cert) => (
+        {CERTIFICATIONS.slice(
+          0,
+          path.includes("certificates") ? CERTIFICATIONS.length : 4,
+        ).map((cert) => (
           <Card
             key={cert.title}
             className="h-full flex flex-col items-stretch shadow-md hover:shadow-lg transition-shadow hover-to-reveal overflow-hidden p-0 gap-0"
@@ -89,6 +98,15 @@ const CertificationsGrid = () => {
           </Card>
         ))}
       </div>
+
+      {!path.includes("certificates") && (
+        <Button asChild className="float-right my-4" variant={"link"}>
+          <Link href={"/certificates" as Route}>
+            CERTIFICATES
+            <ArrowRight />
+          </Link>
+        </Button>
+      )}
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-3xl">
