@@ -26,4 +26,10 @@ export const recommendationLetters: RecommendationLetter[] = [
     href: "/recommendation-letters/women-reform.pdf" as Route,
     logo: "/recommendation-letters/women-reform/logo.png",
   },
+  {
+    id: crypto.randomUUID(),
+    company: "Vaunt",
+    href: "/recommendation-letters/vaunt.pdf" as Route,
+    logo: "/recommendation-letters/vaunt/logo.png",
+  },
 ];
