@@ -32,4 +32,10 @@ export const recommendationLetters: RecommendationLetter[] = [
     href: "/recommendation-letters/vaunt.pdf" as Route,
     logo: "/recommendation-letters/vaunt/logo.png",
   },
+  {
+    id: crypto.randomUUID(),
+    company: "Apetech",
+    href: "/recommendation-letters/apetech.pdf" as Route,
+    logo: "/recommendation-letters/apetech/logo.png",
+  },
 ];
